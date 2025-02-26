@@ -1,134 +1,233 @@
 import { RouteRecordRaw } from "vue-router";
-import UserLayout from "@/layouts/UserLayout.vue";
-import UserLoginView from "@/views/user/UserLoginView.vue";
-import UserRegisterView from "@/views/user/UserRegisterView.vue";
 import NoAuthView from "@/views/NoAuthView.vue";
 import ACCESS_ENUM from "@/access/accessEnum";
 import AddQuestionView from "@/views/question/AddQuestionView.vue";
-import ManageQuestionView from "@/views/question/ManageQuestionView.vue";
+import QuestionManageView from "@/views/manage/QuestionManageView.vue";
 import QuestionsView from "@/views/question/QuestionsView.vue";
-import QuestionSubmitView from "@/views/question/QuestionSubmitView.vue";
 import ViewQuestionView from "@/views/question/ViewQuestionView.vue";
-import DiscussView from "@/views/DisscussView.vue";
-import AddPostView from "@/views/post/AddPostView.vue";
-import AdminView from "@/layouts/AdminLayout.vue";
-import TeacherManageView from "@/views/manage/TeacherManageView.vue";
-import StudentManageView from "@/views/manage/StudentManageView.vue";
-import NoticeManageView from "@/views/manage/NoticeManageView.vue";
+import UserManageView from "@/views/manage/UserManageView.vue";
 import PostManageView from "@/views/manage/PostManageView.vue";
+import UserProfile from "@/views/user/UserProfile.vue";
+import UserLoginView from "@/views/user/UserLoginView.vue";
+import UserRegisterView from "@/views/user/UserRegisterView.vue";
+import HomePageView from "@/views/HomePageView.vue";
+import DiscussView from "@/views/disscuss/DiscussView.vue";
+import PostDetailView from "@/views/post/PostDetailView.vue";
+import AnnouncementManage from "@/views/manage/AnnouncementManage.vue";
+import QuestionSubmit from "@/views/question/QuestionSubmit.vue";
+import QuestionSubmitInfoView from "@/views/question/QuestionSubmitInfoView.vue";
+import AddPostSolutionView from "@/views/post/AddPostSolutionView.vue";
+import QuestionSolutionInfoView from "@/views/post/QuestionSolutionInfoView.vue";
 
 export const routes: Array<RouteRecordRaw> = [
+  // 主页
+  {
+    path: "/",
+    name: "主页",
+    component: HomePageView,
+    meta: {
+      hideInMenu: true,
+    },
+  },
+  {
+    path: "/noAuth",
+    name: "无权限",
+    component: NoAuthView,
+    meta: { hideInMenu: true },
+  },
+  // 讨论
+  {
+    path: "/discuss",
+    name: "讨论",
+    component: DiscussView,
+    meta: { hideInMenu: true },
+  },
+
   // 用户
   {
     path: "/user",
-    name: "用户",
-    component: UserLayout,
+    name: "用户模块",
     children: [
       {
         path: "/user/login",
         name: "用户登录",
         component: UserLoginView,
+        meta: {
+          hideInMenu: true,
+        },
       },
       {
         path: "/user/register",
         name: "用户注册",
         component: UserRegisterView,
+        meta: { hideInMenu: true },
+      },
+      {
+        path: "/user/info",
+        name: "用户信息",
+        component: UserProfile,
+        meta: {
+          hideInMenu: true,
+          access: ACCESS_ENUM.USER,
+        },
       },
     ],
     meta: {
       hideInMenu: true,
     },
   },
-  // 题目
+
+  // 题目模块
   {
-    path: "/",
-    name: "主页",
-    component: QuestionsView,
-  },
-  // {
-  //   path: "/questions",
-  //   name: "浏览题目",
-  //   component: QuestionsView,
-  // },
-  {
-    path: "/question_submit",
-    name: "浏览题目提交",
-    component: QuestionSubmitView,
-  },
-  {
-    path: "/view/question/:id",
-    name: "在线做题",
-    component: ViewQuestionView,
-    props: true,
+    path: "/question",
+    name: "题目",
+    children: [
+      {
+        path: "/question/view",
+        name: "题目中心",
+        component: QuestionsView,
+        meta: {
+          hideInMenu: false,
+        },
+      },
+      {
+        path: "/question/submitList",
+        name: "提交列表",
+        component: QuestionSubmit,
+        meta: {
+          access: ACCESS_ENUM.USER,
+          hideInMenu: false,
+        },
+      },
+      {
+        path: "/question/submit/info/:id",
+        name: "提交详情",
+        component: QuestionSubmitInfoView,
+        props: true,
+        meta: {
+          hideInMenu: true,
+        },
+      },
+      {
+        path: "/question/submit/:id",
+        name: "在线做题",
+        component: ViewQuestionView,
+        props: true,
+        meta: {
+          access: ACCESS_ENUM.USER,
+          hideInMenu: true,
+        },
+      },
+      {
+        path: "/add/question",
+        name: "创建题目",
+        component: AddQuestionView,
+        meta: {
+          hideInMenu: true,
+          access: ACCESS_ENUM.TEACHER,
+        },
+      },
+      // 应对路由跳转拦截
+      {
+        path: "/question/create",
+        name: "新建题目",
+        component: AddQuestionView,
+        meta: {
+          access: ACCESS_ENUM.TEACHER,
+          hideInMenu: true,
+        },
+      },
+      {
+        path: "/question/update",
+        name: "更新题目",
+        component: AddQuestionView,
+        meta: {
+          access: ACCESS_ENUM.TEACHER,
+          hideInMenu: true,
+        },
+      },
+      // 应对路由跳转拦截
+      {
+        path: "/question/edit",
+        name: "编辑题目",
+        component: AddQuestionView,
+        meta: {
+          access: ACCESS_ENUM.TEACHER,
+          hideInMenu: true,
+        },
+      },
+      {
+        path: "/question/manage",
+        name: "我的题目",
+        component: QuestionManageView,
+        meta: {
+          access: ACCESS_ENUM.TEACHER,
+          hideInMenu: false,
+        },
+      },
+      // {
+      //   path: "/question/solution/my",
+      //   name: "我的题解",
+      //   component: ArticleListView,
+      //   meta: {
+      //     access: ACCESS_ENUM.USER,
+      //     hideInMenu: false,
+      //   },
+      // },
+    ],
     meta: {
-      access: ACCESS_ENUM.USER,
-      hideInMenu: true,
-    },
-  },
-  {
-    path: "/add/question",
-    name: "创建题目",
-    component: AddQuestionView,
-    meta: {
-      access: ACCESS_ENUM.TEACHER,
-    },
-  },
-  {
-    path: "/update/question",
-    name: "更新题目",
-    component: AddQuestionView,
-    meta: {
-      access: ACCESS_ENUM.TEACHER,
-      hideInMenu: true,
-    },
-  },
-  {
-    path: "/manage/question/",
-    name: "管理题目",
-    component: ManageQuestionView,
-    meta: {
-      access: ACCESS_ENUM.TEACHER,
+      hideInMenu: false,
     },
   },
 
-  // 讨论
+  // 题解模块
   {
-    path: "/discuss",
-    name: "讨论",
-    component: DiscussView,
-    children: [],
+    path: "/solution",
+    name: "题解",
+    children: [
+      {
+        path: "/solution/add/:id",
+        name: "新建题解",
+        component: AddPostSolutionView,
+        props: true,
+        meta: {
+          access: ACCESS_ENUM.USER,
+          hideInMenu: true,
+        },
+      },
+    ],
+    meta: {
+      hideInMenu: true,
+      oneLevelMenu: false,
+    },
   },
-  // 创建帖子
+
   {
-    path: "/add/post",
-    name: "创建帖子",
-    component: AddPostView,
+    path: "/post/:id",
+    name: "帖子详情",
+    component: PostDetailView,
     meta: {
       hideInMenu: true,
     },
   },
+
   {
     path: "/admin",
     name: "管理员",
-    component: AdminView,
-    // meta: {
-    //   access: ACCESS_ENUM.ADMIN,
-    // },
+    meta: {
+      access: ACCESS_ENUM.ADMIN,
+      hideInMenu: false,
+    },
     children: [
       {
-        path: "/admin/student",
-        name: "学生管理",
-        component: StudentManageView,
-      },
-      {
-        path: "/admin/teacher",
-        name: "教师管理",
-        component: TeacherManageView,
+        path: "/admin/user",
+        name: "用户管理",
+        component: UserManageView,
       },
       {
         path: "/admin/question",
         name: "题目管理",
-        component: ManageQuestionView,
+        component: QuestionManageView,
       },
       // 帖子管理
       {
@@ -140,34 +239,8 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "/admin/notice",
         name: "公告管理",
-        component: NoticeManageView,
+        component: AnnouncementManage,
       },
     ],
   },
-
-  {
-    path: "/noAuth",
-    name: "无权限",
-    component: NoAuthView,
-    meta: {
-      hideInMenu: true,
-    },
-  },
-  // {
-  //   path: "/admin",
-  //   name: "管理员可见",
-  //   component: AdminView,
-  //   meta: {
-  //     access: ACCESS_ENUM.ADMIN,
-  //   },
-  // },
-  // {
-  //   path: "/about",
-  //   name: "关于我的",
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () =>
-  //     import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  // },
 ];

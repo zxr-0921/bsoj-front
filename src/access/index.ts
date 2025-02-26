@@ -2,11 +2,10 @@ import router from "@/router";
 import ACCESS_ENUM from "@/access/accessEnum";
 import checkAccess from "@/access/checkAccess";
 import { useUserStore } from "@/store/modulers/user";
-
+// 路由守卫
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   console.log("登录用户信息", userStore.loginUser);
-
   let loginUser = userStore.loginUser;
   // // 如果之前没登陆过，自动登录
   if (!loginUser || !loginUser.userRole) {

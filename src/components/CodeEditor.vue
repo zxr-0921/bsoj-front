@@ -31,6 +31,17 @@ const props = withDefaults(defineProps<Props>(), {
     console.log(v);
   },
 });
+// 设置不同语言的初始化代码
+const languageCode = {
+  java: `/*示例代码*/
+public class Main {
+     public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`,
+  python: `# 示例代码
+  print("Hello, World!")`,
+};
 
 const codeEditorRef = ref();
 const codeEditor = ref();
@@ -55,22 +66,42 @@ watch(
   }
 );
 
+watch(
+  () => props.language,
+  () => {
+    if (codeEditor.value) {
+      // 设置不同语言的初始化代码
+      toRaw(codeEditor.value).setValue(languageCode[props.language]);
+    }
+  }
+);
+
 onMounted(() => {
   if (!codeEditorRef.value) {
     return;
   }
   // Hover on each property to see its docs!
   codeEditor.value = monaco.editor.create(codeEditorRef.value, {
-    value: props.value,
+    value: languageCode[props.language],
     language: props.language,
     automaticLayout: true,
     colorDecorators: true,
+    folding: true,
+    renderLineHighlight: "all",
+    foldingStrategy: "indentation",
+    autoClosingBrackets: "always",
+    autoClosingDelete: "always",
+    autoClosingOvertype: "always",
+    formatOnPaste: true,
+    autoIndent: "none",
+    cursorBlinking: "solid",
     minimap: {
       enabled: true,
     },
     readOnly: false,
     theme: "vs-dark",
-    // lineNumbers: "off",
+    // fontSize: 14,
+    lineNumbers: "on",
     // roundedSelection: false,
     // scrollBeyondLastLine: false,
   });

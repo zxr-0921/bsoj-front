@@ -1,4 +1,4 @@
-// Add a request interceptor
+// 用于配置axios拦截器
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
@@ -18,8 +18,11 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   function (response) {
     console.log("响应", response);
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
+    // 如果未登录
+    if (response.data.code === 40100) {
+      // 跳转到登录页面
+      window.location.href = "/user/login";
+    }
     return response;
   },
   function (error) {

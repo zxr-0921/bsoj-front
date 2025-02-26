@@ -13,51 +13,66 @@
           disabled
         >
           <div class="title-bar">
-            <img alt="logo" class="logo" src="../assets/oj-logo.svg" />
+            <img alt="logo" class="logo" src="../assets/logo.jpg" />
             <div class="title">BSOJ</div>
           </div>
         </a-menu-item>
-        <a-menu-item v-for="item in visibleRoutes" :key="item.path">
-          {{ item.name }}
-        </a-menu-item>
+        <a-menu-item key="/" class="item"> 首页</a-menu-item>
+        <a-menu-item key="/discuss"> 讨论</a-menu-item>
+        <a-sub-menu v-for="item in visibleRoutes" :key="item.path">
+          <template #title>{{ item.name }}</template>
+          <a-menu-item v-for="ele in filterSonMenu(item)" :key="ele.path">
+            {{ ele.name }}
+          </a-menu-item>
+        </a-sub-menu>
       </a-menu>
     </a-col>
-    <a-col flex="100px">
-      <div v-if="loginUser.userRole !== AccessEnum.NOT_LOGIN">
-        <a-dropdown trigger="click">
-          <a-avatar
-            :size="32"
-            :style="{ marginRight: '8px', cursor: 'pointer' }"
-            ><img :src="loginUser.userAvatar" alt="avatar"
-          /></a-avatar>
-          <template #content>
-            <a-doption @click="$router.push({ name: 'Info' })">
-              <!-- todo:页面还未开发-->
-              <a-space>
-                <icon-user />
-                <span> 用户中心 </span></a-space
-              >
-            </a-doption>
-            <a-doption @click="$router.push({ name: 'Setting' })">
-              <a-space>
-                <icon-settings />
-                <span> 用户设置 </span></a-space
-              >
-            </a-doption>
-            <a-doption @click="handleLogout">
-              <a-space>
-                <icon-export />
-                <span> 退出登录 </span></a-space
-              >
-            </a-doption>
-          </template>
-        </a-dropdown>
-        {{ viewName }}
-      </div>
-      <!-- 登录注册-->
-      <a-button v-else type="text">
-        <router-link class="no-underline" to="/user/login">登录</router-link>
-      </a-button>
+    <!--头像-->
+    <a-col :style="{ padding: 0, marginRight: '50px' }" flex="150px">
+      <a-button-group>
+        <a-button
+          v-if="loginUser.userRole === AccessEnum.NOT_LOGIN"
+          status="normal"
+          type="text"
+          @click="goLogin"
+          >登录
+        </a-button>
+        <a-button
+          v-if="loginUser.userRole === AccessEnum.NOT_LOGIN"
+          status="warning"
+          type="text"
+          @click="goRegister"
+          >注册
+        </a-button>
+        <a-button
+          v-if="loginUser.userRole !== AccessEnum.NOT_LOGIN"
+          status="success"
+          type="text"
+          @click="goLogin"
+          >重新登录
+        </a-button>
+        <a-popconfirm
+          v-if="loginUser.userRole !== AccessEnum.NOT_LOGIN"
+          :onOk="() => handleLogout()"
+          content="确定要退出登录吗?"
+          type="warning"
+        >
+          <a-button status="danger" type="text">退出登录</a-button>
+        </a-popconfirm>
+        <a-popover
+          position="top"
+          v-if="loginUser.userRole !== AccessEnum.NOT_LOGIN"
+        >
+          <template #content>点击查看详情</template>
+          <a-space :style="{ marginLeft: '10px' }" size="large">
+            <a-avatar
+              id="avatar"
+              :imageUrl="loginUser?.userAvatar"
+              @click="goUserInfo"
+            ></a-avatar>
+          </a-space>
+        </a-popover>
+      </a-button-group>
     </a-col>
   </a-row>
 </template>
@@ -69,7 +84,6 @@ import { computed, ref } from "vue";
 import checkAccess from "@/access/checkAccess";
 import { useUserStore } from "@/store/modulers/user";
 import AccessEnum from "@/access/accessEnum";
-import { IconUser } from "@arco-design/web-vue/es/icon";
 import { UserControllerService } from "../../generated";
 
 const userStore = useUserStore();
@@ -88,6 +102,30 @@ const visibleRoutes = computed(() => {
     return true;
   });
 });
+const goRegister = () => {
+  router.push({
+    path: "/user/register",
+    replace: true,
+  });
+};
+// 过滤二级子菜单
+const filterSonMenu = (item: any) => {
+  if (item.children) {
+    item.children = item.children.filter((child: any) => {
+      // 过滤掉那些 meta.hideMenu 为 true 的子菜单项
+      if (child.meta?.hideInMenu) {
+        return false;
+      }
+      // 权限过滤
+      if (!checkAccess(loginUser, child.meta?.access as string)) {
+        return false;
+      }
+      return true;
+    });
+  }
+  return item.children;
+};
+
 // 退出登录
 const handleLogout = async () => {
   // 退出登录
@@ -110,7 +148,9 @@ const viewName = computed(() => {
   }
   return "";
 });
-
+const goLogin = () => {
+  router.push({ path: "/user/login", replace: true });
+};
 // 默认主页
 const selectedKeys = ref(["/"]);
 
@@ -127,12 +167,24 @@ console.log();
     userRole: ACCESS_ENUM.ADMIN,
   });
 }, 3000);*/
-
+const toPersonalCenter = () => {
+  router.push({ path: "/user/info" });
+};
 const doMenuClick = (key: string) => {
   router.push({
     path: key,
   });
 };
+const goUserInfo = () => {
+  router.push({
+    path: "/user/info",
+    replace: false,
+  });
+};
+// 页面刷新时获取用户信息
+// onMounted(async () => {
+//   userStore.getLoginUser();
+// });
 </script>
 
 <style scoped>
@@ -152,5 +204,9 @@ const doMenuClick = (key: string) => {
 
 .logo {
   height: 48px;
+}
+
+.item {
+  color: #f08ee6;
 }
 </style>

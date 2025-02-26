@@ -1,29 +1,34 @@
 <template>
   <div id="questionsView">
+    <!--    搜索栏-->
     <a-form :model="searchParams" layout="inline">
       <a-form-item field="title" label="名称" style="min-width: 240px">
-        <a-input v-model="searchParams.title" placeholder="请输入名称" />
+        <a-input
+          v-model="searchParams.title"
+          allow-clear
+          placeholder="请输入名称"
+        />
       </a-form-item>
       <a-form-item field="tags" label="标签" style="min-width: 240px">
         <a-input-tag v-model="searchParams.tags" placeholder="请输入标签" />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" @click="doSubmit">提交</a-button>
+        <a-space size="large">
+          <a-button type="primary" @click="doSubmit">查询</a-button>
+          <a-button @click="resetSearch">重置</a-button>
+        </a-space>
       </a-form-item>
     </a-form>
-    <a-divider size="0" />
+    <a-divider margin="20px 0" />
+    <!-- 表格-->
     <a-table
       :ref="tableRef"
       :columns="columns"
       :data="dataList"
-      :pagination="{
-        showTotal: true,
-        pageSize: searchParams.pageSize,
-        current: searchParams.current,
-        total,
-      }"
+      :pagination="pagination"
       @page-change="onPageChange"
     >
+      <!-- 标签-->
       <template #tags="{ record }">
         <a-space wrap>
           <a-tag v-for="(tag, index) of record.tags" :key="index" color="green"
@@ -31,31 +36,40 @@
           </a-tag>
         </a-space>
       </template>
+      <!--      通过显示率-->
       <template #acceptedRate="{ record }">
-        {{
-          `${
-            record.submitNum
-              ? ((record.acceptedNum / record.submitNum) * 100).toFixed(2)
-              : "0"
-          }% (${record.acceptedNum}/${record.submitNum})`
-        }}
+        <span class="accept-rate"> {{ calcAcceptRate(record) }} </span>
       </template>
+      <!-- 时间格式化优化 -->
       <template #createTime="{ record }">
-        {{ moment(record.createTime).format("YYYY-MM-DD") }}
+        {{ formatTime(record.createTime) }}
       </template>
+      <!-- 操作按钮优化 -->
       <template #optional="{ record }">
-        <a-space>
-          <a-button type="primary" @click="toQuestionPage(record)">
-            做题
-          </a-button>
-        </a-space>
+        <a-button
+          status="success"
+          type="outline"
+          @click="toQuestionPage(record)"
+        >
+          <template #icon>
+            <icon-play-arrow />
+          </template>
+          开始做题
+        </a-button>
+      </template>
+
+      <!-- 空状态优化 -->
+      <template #empty>
+        <a-empty class="empty" description="暂无题目">
+          <a-button type="primary" @click="resetSearch">重置查询</a-button>
+        </a-empty>
       </template>
     </a-table>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import {
   Question,
   QuestionControllerService,
@@ -63,7 +77,7 @@ import {
 } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import { useRouter } from "vue-router";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const tableRef = ref();
 
@@ -75,7 +89,31 @@ const searchParams = ref<QuestionQueryRequest>({
   pageSize: 8,
   current: 1,
 });
+// 时间格式化
+const formatTime = (time: string) => dayjs(time).format("YYYY-MM-DD HH:mm");
 
+// 计算通过率
+const calcAcceptRate = (record: Question) => {
+  if (!record.submitNum) return "0% (0/0)";
+  const rate = ((record.acceptedNum / record.submitNum) * 100).toFixed(2);
+  return `${rate}% (${record.acceptedNum}/${record.submitNum})`;
+};
+// 分页配置（计算属性）
+const pagination = computed(() => ({
+  total: total.value,
+  current: searchParams.value.current,
+  pageSize: searchParams.value.pageSize,
+  showTotal: true,
+  showPageSize: true,
+  pageSizeOptions: [8, 12, 20, 50],
+}));
+// 重置查询
+const resetSearch = () => {
+  searchParams.value.title = "";
+  searchParams.value.tags = [];
+  searchParams.value.current = 1;
+  loadData();
+};
 const loadData = async () => {
   const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
     searchParams.value
@@ -87,7 +125,12 @@ const loadData = async () => {
     message.error("加载失败，" + res.message);
   }
 };
-
+const handleEdit = (item) => {
+  console.log("编辑公告:", item);
+};
+const handleDelete = (id) => {
+  console.log("删除公告ID:", id);
+};
 /**
  * 监听 searchParams 变量，改变时触发页面的重新加载
  */
@@ -126,6 +169,7 @@ const columns = [
     slotName: "createTime",
   },
   {
+    title: "操作",
     slotName: "optional",
   },
 ];
@@ -145,7 +189,7 @@ const router = useRouter();
  */
 const toQuestionPage = (question: Question) => {
   router.push({
-    path: `/view/question/${question.id}`,
+    path: `/question/submit/${question.id}`,
   });
 };
 
@@ -165,5 +209,10 @@ const doSubmit = () => {
 #questionsView {
   max-width: 1280px;
   margin: 0 auto;
+}
+
+.accept-rate {
+  font-family: monospace;
+  font-weight: 500;
 }
 </style>

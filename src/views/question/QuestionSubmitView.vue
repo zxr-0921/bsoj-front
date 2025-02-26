@@ -70,7 +70,7 @@ const loadData = async () => {
     {
       ...searchParams.value,
       sortField: "createTime",
-      sortOrder: "descend",
+      order: "descend",
     }
   );
   if (res.code === 0) {

@@ -1,68 +1,113 @@
 <template>
-  <div id="userLoginView">
-    <h2 style="margin-bottom: 16px">用户登录</h2>
-    <a-form
-      :model="form"
-      auto-label-width
-      label-align="left"
-      style="max-width: 480px; margin: 0 auto"
-      @submit="handleSubmit"
-    >
-      <a-form-item field="userAccount" label="账号">
-        <a-input v-model="form.userAccount" placeholder="请输入账号" />
-      </a-form-item>
-      <a-form-item field="userPassword" label="密码" tooltip="密码不少于 8 位">
-        <a-input-password
-          v-model="form.userPassword"
-          placeholder="请输入密码"
-        />
-      </a-form-item>
-      <a-form-item>
-        <a-button html-type="submit" style="width: 120px" type="primary">
-          登录
-        </a-button>
-        <!--没有账号？去注册-->
-        <!-- 样式：右对齐，取消下划线，点击跳转到注册页面，提示：没有账号？去注册-->
-        <a-button html-type="text" style="float: right">
-          <router-link to="/user/register">没有账号？去注册</router-link>
-        </a-button>
-      </a-form-item>
-    </a-form>
+  <!--  添加背景图片-->
+  <div class="login-container">
+    <a-card :bordered="false" class="login-card"
+      ><h2 style="text-align: center; margin-bottom: 30px">
+        在线编程题目评测系统
+      </h2>
+      <a-form :model="form" layout="vertical">
+        <!-- 账号输入框 -->
+        <a-form-item field="userAccount" label="账号">
+          <a-input
+            v-model="form.userAccount"
+            allow-clear
+            placeholder="请输入账号"
+          />
+        </a-form-item>
+        <!-- 密码输入框 -->
+        <a-form-item field="userPassword" label="密码">
+          <a-input-password
+            v-model="form.userPassword"
+            allow-clear
+            placeholder="请输入密码"
+          />
+        </a-form-item>
+        <!-- 操作按钮 -->
+        <div class="button-group">
+          <a-button :loading="loading" long type="primary" @click="handleLogin">
+            登录
+          </a-button>
+          <a-button
+            long
+            style="margin-top: 10px"
+            type="outline"
+            @click="handleRegister"
+          >
+            注册
+          </a-button>
+        </div>
+      </a-form>
+    </a-card>
   </div>
 </template>
-
 <script lang="ts" setup>
-import { reactive } from "vue";
-import { UserControllerService, UserLoginRequest } from "../../../generated";
-import message from "@arco-design/web-vue/es/message";
+import { reactive, ref } from "vue";
+import { UserControllerService } from "../../../generated";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/modulers/user";
-
-/**
- * 表单信息
- */
+import message from "@arco-design/web-vue/es/message";
+// 表单数据
 const form = reactive({
   userAccount: "",
   userPassword: "",
-} as UserLoginRequest);
+});
 
 const router = useRouter();
 const userStore = useUserStore();
-/**
- * 提交表单
- * @param data
- */
-const handleSubmit = async () => {
-  const res = await UserControllerService.userLoginUsingPost(form);
-  // 登录成功，跳转到主页
-  if (res.code === 0) {
-    await userStore.getLoginUser();
-    router.push({
-      path: "/",
-      replace: true,
-    });
-  } else {
-    message.error("登陆失败，" + res.message);
+const loading = ref(false);
+const handleLogin = async () => {
+  if (!form.userAccount || !form.userPassword) {
+    message.warning("请输入完整的登录信息");
+    return;
+  }
+  try {
+    loading.value = true;
+    // 登录接口调用
+    const res = await UserControllerService.userLoginUsingPost(form);
+    if (res.code == 0) {
+      // 登录成功，跳转到主页
+      await userStore.getLoginUser();
+      message.success("登录成功");
+      router.push({
+        path: "/",
+        replace: true,
+      });
+    } else {
+      message.error(res.message);
+    }
+  } catch (error) {
+    message.error(error.message);
+  } finally {
+    loading.value = false;
   }
 };
+const handleRegister = () => {
+  // 跳转到注册页面或显示注册弹窗
+  message.info("前往注册");
+  router.push({
+    path: "/user/register",
+    replace: false,
+  });
+};
 </script>
+<style scoped>
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--color-fill-2);
+  background-image: url("@/assets/00.jpg");
+  background-size: cover;
+}
+
+.login-card {
+  width: 380px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.button-group {
+  margin-top: 30px;
+}
+</style>

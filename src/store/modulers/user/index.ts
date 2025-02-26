@@ -9,6 +9,7 @@ export const useUserStore = defineStore("user", {
     return {
       // 用户信息
       loginUser: {
+        userId: 0,
         userName: "未登录",
         userRole: AccessEnum.NOT_LOGIN,
         userAvatar: "",
@@ -25,12 +26,17 @@ export const useUserStore = defineStore("user", {
       const res = await UserControllerService.getLoginUserUsingGet();
       console.log("登录信息返回", res);
       if (res.code === 0) {
+        this.loginUser.userId = <number>res.data?.id;
         this.loginUser.userName = <string>res.data?.userName;
         this.loginUser.userRole = <string>res.data?.userRole;
         this.loginUser.userAvatar = <string>res.data?.userAvatar;
         this.loginUser.userProfile = <string>res.data?.userProfile;
+      } else {
+        // 清空sessionStorage
+        sessionStorage.clear();
       }
     },
   },
+
   getters: {},
 });

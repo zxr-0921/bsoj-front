@@ -11,6 +11,7 @@ import "bytemd/dist/index.css";
 import ArcoVueIcon from "@arco-design/web-vue/es/icon";
 // 持久化插件
 import piniaPersist from "pinia-plugin-persist";
+
 const pinia = createPinia();
 pinia.use(piniaPersist);
 createApp(App)

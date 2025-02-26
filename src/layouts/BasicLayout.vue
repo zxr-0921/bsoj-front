@@ -38,10 +38,6 @@
   text-align: center;
 }
 </style>
-<script>
+<script setup>
 import GlobalHeader from "@/components/GlobalHeader";
-
-export default {
-  components: { GlobalHeader },
-};
 </script>
