@@ -95,8 +95,8 @@ export const routes: Array<RouteRecordRaw> = [
         name: "提交列表",
         component: QuestionSubmit,
         meta: {
-          access: ACCESS_ENUM.USER,
           hideInMenu: false,
+          access: ACCESS_ENUM.USER,
         },
       },
       {
@@ -114,7 +114,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: ViewQuestionView,
         props: true,
         meta: {
-          access: ACCESS_ENUM.USER,
+          // access: ACCESS_ENUM.USER,
           hideInMenu: true,
         },
       },
@@ -161,8 +161,8 @@ export const routes: Array<RouteRecordRaw> = [
         name: "我的题目",
         component: QuestionManageView,
         meta: {
-          access: ACCESS_ENUM.TEACHER,
           hideInMenu: false,
+          access: ACCESS_ENUM.TEACHER,
         },
       },
       // {

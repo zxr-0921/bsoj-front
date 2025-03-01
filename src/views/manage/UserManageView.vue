@@ -171,9 +171,6 @@ const loadingOk = ref(false);
 const loadingDelete = ref(false);
 
 const tableRef = ref();
-const checkStatus = (status: string) => {
-  return status ? "true" : "false";
-};
 const dataList = ref([]);
 const total = ref(0);
 const searchParams = ref({

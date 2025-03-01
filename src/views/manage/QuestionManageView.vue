@@ -90,6 +90,8 @@ import { onMounted, ref, watchEffect } from "vue";
 import { Question, QuestionControllerService } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
 import { useRouter } from "vue-router";
+import { useUserStore } from "@/store/modulers/user";
+import accessEnum from "@/access/accessEnum";
 
 /**
  * loading等状态
@@ -109,18 +111,35 @@ const searchParams = ref({
   tags: [],
 });
 
+const userStore = useUserStore();
 // 页面加载时，请求数据
 const loadData = async () => {
   loadingList.value = true;
-  const res = await QuestionControllerService.listQuestionByPageUsingPost(
-    searchParams.value
-  );
-  loadingList.value = false;
-  if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = res.data.total;
+  // 管理员加载所有题目，教师加载自己创建的题目
+  if (userStore.loginUser.userRole === accessEnum.ADMIN) {
+    const res = await QuestionControllerService.listQuestionByPageUsingPost(
+      searchParams.value
+    );
+    loadingList.value = false;
+    if (res.code === 0) {
+      dataList.value = res.data.records;
+      total.value = res.data.total;
+    } else {
+      message.error("加载失败，" + res.message);
+    }
   } else {
-    message.error("加载失败，" + res.message);
+    const res =
+      await QuestionControllerService.listQuestionByPageTeacherUsingPost({
+        ...searchParams.value,
+        userId: userStore.loginUser.userId,
+      });
+    loadingList.value = false;
+    if (res.code === 0) {
+      dataList.value = res.data.records;
+      total.value = res.data.total;
+    } else {
+      message.error("加载失败，" + res.message);
+    }
   }
 };
 

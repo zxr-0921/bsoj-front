@@ -44,7 +44,6 @@
         <a-button type="primary" @click="submitSolution">确认</a-button>
         <a-button @click="resetSolutionForm">返回</a-button>
       </a-form-item>
-      {{ solutionForm }}
     </a-form>
   </div>
 </template>

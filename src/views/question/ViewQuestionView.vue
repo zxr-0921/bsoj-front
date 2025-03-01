@@ -42,9 +42,9 @@
           >
             <a-form-item style="height: 10px">
               <a-input-search
+                allow-clear
                 placeholder="输入标题关键词搜索"
                 size="small"
-                allow-clear
                 @search="(value:any) => doSearch(value)"
               />
               <!-- Todo： 需要通过通过题目才可以发布题解-->
@@ -242,6 +242,11 @@ const doSearch = async (value: string) => {
 
 // ai分析
 const doAiIdea = async () => {
+  // 如果未登录不能使用
+  if (sessionStorage.getItem("user") === null) {
+    message.error("请先登录");
+    return;
+  }
   spinloding.value = true;
   const anlysis = ref({
     title: question.value?.title,
@@ -301,6 +306,10 @@ const loading = ref(false); // 控制加载状态
 const optimizedCode = ref(""); // 存储优化后的代码
 
 const optimizeCode = async () => {
+  if (sessionStorage.getItem("user") === null) {
+    message.error("请先登录");
+    return;
+  }
   visible.value = true;
   loading.value = true;
   // 如果代码为空，返回

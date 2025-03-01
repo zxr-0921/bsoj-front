@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import { routes } from "@/router/routes";
 import { useRouter } from "vue-router";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import checkAccess from "@/access/checkAccess";
 import { useUserStore } from "@/store/modulers/user";
 import AccessEnum from "@/access/accessEnum";
@@ -89,6 +89,7 @@ import { UserControllerService } from "../../generated";
 const userStore = useUserStore();
 const router = useRouter();
 let loginUser = userStore.loginUser;
+
 // 展示在菜单的路由数组
 const visibleRoutes = computed(() => {
   return routes.filter((item) => {
@@ -102,14 +103,17 @@ const visibleRoutes = computed(() => {
     return true;
   });
 });
+console.log("visibleRoutes", visibleRoutes);
 const goRegister = () => {
   router.push({
     path: "/user/register",
     replace: true,
   });
 };
+
 // 过滤二级子菜单
 const filterSonMenu = (item: any) => {
+  console.log("过滤二级子菜单", item);
   if (item.children) {
     item.children = item.children.filter((child: any) => {
       // 过滤掉那些 meta.hideMenu 为 true 的子菜单项
@@ -117,15 +121,11 @@ const filterSonMenu = (item: any) => {
         return false;
       }
       // 权限过滤
-      if (!checkAccess(loginUser, child.meta?.access as string)) {
-        return false;
-      }
-      return true;
+      return checkAccess(loginUser, child.meta?.access as string);
     });
   }
   return item.children;
 };
-
 // 退出登录
 const handleLogout = async () => {
   // 退出登录
@@ -133,21 +133,13 @@ const handleLogout = async () => {
   if (res.code === 0) {
     // 清空用户信息
     userStore.$reset();
+    // 清空浏览器缓存
+    sessionStorage.clear();
     // 跳转到登录页面
     router.push({ path: "/user/login", replace: true });
   }
 };
 // 用户视图名称
-const viewName = computed(() => {
-  if (loginUser.userRole !== AccessEnum.NOT_LOGIN) {
-    if (loginUser.userName) {
-      return loginUser.userName;
-    } else {
-      return "momo";
-    }
-  }
-  return "";
-});
 const goLogin = () => {
   router.push({ path: "/user/login", replace: true });
 };
@@ -159,17 +151,6 @@ router.afterEach((to, from, failure) => {
   selectedKeys.value = [to.path];
 });
 
-console.log();
-
-/*setTimeout(() => {
-  store.dispatch("user/getLoginUser", {
-    userName: "鱼皮管理员",
-    userRole: ACCESS_ENUM.ADMIN,
-  });
-}, 3000);*/
-const toPersonalCenter = () => {
-  router.push({ path: "/user/info" });
-};
 const doMenuClick = (key: string) => {
   router.push({
     path: key,
@@ -181,10 +162,6 @@ const goUserInfo = () => {
     replace: false,
   });
 };
-// 页面刷新时获取用户信息
-// onMounted(async () => {
-//   userStore.getLoginUser();
-// });
 </script>
 
 <style scoped>

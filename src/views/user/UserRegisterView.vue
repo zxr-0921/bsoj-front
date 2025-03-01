@@ -9,7 +9,7 @@
           <a-input
             v-model="form.userAccount"
             allow-clear
-            placeholder="请输入账号"
+            placeholder="账号不少于4位"
           />
         </a-form-item>
         <!-- 密码输入框 -->
@@ -17,7 +17,7 @@
           <a-input-password
             v-model="form.userPassword"
             allow-clear
-            placeholder="请输入密码"
+            placeholder="密码不少于8位"
           />
         </a-form-item>
         <a-form-item field="userPassword" label="确认密码">

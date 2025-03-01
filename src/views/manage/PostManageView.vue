@@ -262,7 +262,8 @@ const columns = [
 watchEffect(() => {
   loadData();
 });
-/**  * 页面加载时，请求数据  */ onMounted(() => {
+/**  * 页面加载时，请求数据  */
+onMounted(() => {
   loadData();
 });
 </script>

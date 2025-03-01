@@ -233,7 +233,7 @@ onMounted(() => {
 
 // 编辑
 const handleEdit = async (record) => {
-  alert("编辑");
+  // alert("编辑");
   isCreateModalVisible.value = true;
   update.value = true;
   const res = await AnnouncementControllerService.getAnnouncementUsingGet(
@@ -276,7 +276,6 @@ const handRevoke = async (record) => {
 };
 // 删除
 const handleDelete = async (record) => {
-  alert("删除");
   const res = await AnnouncementControllerService.deleteAnnouncementUsingDelete(
     record.id
   );

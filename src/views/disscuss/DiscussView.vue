@@ -61,9 +61,9 @@ import { onMounted, reactive, ref } from "vue";
 import { Message } from "@arco-design/web-vue";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
+import { Posts, PostsVO } from "../../../generated";
 import MdEditor from "@/components/MdEditor.vue";
 import { PostsControllerService } from "../../../generated";
-import { Posts, PostsVO } from "../generated/model";
 import PostCreateDialog from "@/components/PostCreateDialog.vue";
 
 const router = useRouter();
@@ -117,6 +117,11 @@ const loadPosts = async () => {
 
 // 显示发帖表单
 const showCreateForm = () => {
+  //判断是否登录
+  if (!sessionStorage.getItem("user")) {
+    Message.error("请先登录");
+    return;
+  }
   formVisible.value = true;
   isEditMode.value = false;
 };

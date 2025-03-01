@@ -54,6 +54,11 @@
           >{{ record.id }}
         </a-button>
       </template>
+      <template #questionTitle="{ record }">
+        <a-button type="text" @click="toQuestionInfo(record.questionVO.id)"
+          >{{ record.questionVO.title }}
+        </a-button>
+      </template>
       <template #judgeInfo="{ record }">
         <a-space wrap>
           <a-tag
@@ -152,6 +157,11 @@ let columns = [
     slotName: "submitId",
   },
   {
+    title: "题目名称",
+    dataIndex: "questionTitle",
+    slotName: "questionTitle",
+  },
+  {
     title: "题号",
     dataIndex: "questionId",
   },
@@ -171,10 +181,6 @@ let columns = [
     title: "消耗内存(kb)",
     slotName: "memoryCost",
   },
-  // {
-  //   title: "判题状态",
-  //   slotName: "status",
-  // },
   {
     title: "提交者 id",
     dataIndex: "userId",
@@ -201,6 +207,12 @@ const router = useRouter();
 const toQuestionSubmitInfoPage = (item: QuestionSubmitVO) => {
   router.push({
     path: `/question/submit/info/${item.id}`,
+  });
+};
+
+const toQuestionInfo = (questionId: number) => {
+  router.push({
+    path: `/question/submit/${questionId}`,
   });
 };
 

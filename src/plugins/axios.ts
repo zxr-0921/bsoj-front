@@ -1,5 +1,6 @@
 // 用于配置axios拦截器
 import axios from "axios";
+import message from "@arco-design/web-vue/es/message";
 
 axios.defaults.withCredentials = true;
 
@@ -22,6 +23,7 @@ axios.interceptors.response.use(
     if (response.data.code === 40100) {
       // 跳转到登录页面
       window.location.href = "/user/login";
+      // message.error("请先登录");
     }
     return response;
   },

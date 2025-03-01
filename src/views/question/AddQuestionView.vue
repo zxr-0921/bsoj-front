@@ -47,7 +47,6 @@
           立即生成
         </a-button>
       </a-form>
-      {{ aiForm }}
 
       <!-- 生成结果 -->
       <div v-if="aiResult" class="ai-result">
@@ -115,7 +114,7 @@
               :field="`form.judgeCase[${index}].input`"
               :label="`输入用例-${index}`"
             >
-              <a-input
+              <a-textarea
                 v-model="judgeCaseItem.input"
                 placeholder="请输入测试输入用例"
               />
@@ -125,7 +124,7 @@
               :field="`form.judgeCase[${index}].output`"
               :label="`输出用例-${index}`"
             >
-              <a-input
+              <a-textarea
                 v-model="judgeCaseItem.output"
                 placeholder="请输入测试输出用例"
               />
@@ -274,6 +273,11 @@ const handleAdd = () => {
   });
 };
 
+const difficultyOptions = ref([
+  { label: "简单", value: "简单" },
+  { label: "中等", value: "中等" },
+  { label: "困难", value: "困难" },
+]);
 /**
  * 删除判题用例
  */
@@ -305,23 +309,6 @@ const aiForm = reactive({
   difficulty: "中等",
   title: "",
 } as AIGenerateQuestionRequest);
-
-const aiQuestionTypes = [
-  { label: "算法题", value: "algorithm" },
-  {
-    label: "数据库",
-    value: "database",
-  },
-  { label: "Shell脚本", value: "shell" },
-];
-const difficultyOptions = [
-  { label: "简单", value: "简单" },
-  { label: "中等", value: "中等" },
-  {
-    label: "困难",
-    value: "困难",
-  },
-];
 
 // 生成处理
 const handleGenerate = async () => {
